@@ -1,0 +1,27 @@
+﻿@model ToolBarModel
+
+@switch(Model.TaskModuleName)
+{
+    case "Task":
+        <script asp-src-include="lib/CursorShopsScripts/TaskToolBar.js"></script>
+        break;
+    case "HotLine":
+    case "HotLineNewTask":
+        <script asp-src-include="lib/CursorShopsScripts/HotLineToolBar.js"></script>
+        break;
+    case "Journal":
+        <script asp-src-include="lib/CursorShopsScripts/JournalToolBar.js"></script>
+        break;
+}
+<div class="container-fluid AllPage" style="border:1px solid RGB(221,221,221);border-radius: 5px;margin-bottom:5px">
+    <div class="row ToolBarButtons">
+        <div class="col-sm-1" onclick="window.location.href = document.referrer;"><img src="~/lib/images/back_arrow_32.gif" /><div class="ToolBarCaption">Назад</div></div>
+        @if(Model.AttachFile){ <div class="col-sm-1" onclick="TaskAction('AttachFile','@Model.TaskModuleName')"><img src="~/lib/images/Attach32.gif" /><div class="ToolBarCaption">Вложить файлы</div></div> }
+        @if(Model.CancelTask){ <div class="col-sm-1" onclick="TaskAction('Cancel','@Model.TaskModuleName')"><img src="~/lib/images/cancel_32.jpg" /><div class="ToolBarCaption">Отменить задание</div></div>}
+        @if(Model.SaveTask){ <div class="col-sm-1" onclick="TaskAction('Save','@Model.TaskModuleName')"><img src="~/lib/images/save_32.jpg" /><div class="ToolBarCaption">Сохранить</div></div>}
+        @if(Model.CompleteTask){ <div class="col-sm-1" onclick="TaskAction('Completed','@Model.TaskModuleName')"><img src="~/lib/images/Completed_32.jpg" /><div class="ToolBarCaption">Задание выполнено</div></div>}
+        @if (Model.PrintTask){ <div class="col-sm-1" onclick="TaskAction('Print','@Model.TaskModuleName')"><img src="~/lib/images/print_32.jpg" /><div class="ToolBarCaption">Печать задания</div></div>}
+        @if (Model.QuestionTask){ <div class="col-sm-1" onclick="TaskAction('Question','@Model.TaskModuleName')"><img src="~/lib/images/question_32.jpg" /><div class="ToolBarCaption">Уточнение задания</div></div>}
+        @if (Model.ReturnTask){ <div class="col-sm-1" onclick="TaskAction('Return','@Model.TaskModuleName')"><img src="~/lib/images/return_32.jpg" /><div class="ToolBarCaption">Возврат на доработку</div></div>}
+    </div>
+</div>

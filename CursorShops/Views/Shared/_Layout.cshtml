@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+
+<html class="AllPage">
+<head>
+    <title>@ViewBag.Title</title>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <link rel="stylesheet" asp-href-include="lib/bootstrap/dist/css/*.min.css" />
+    <link rel="stylesheet" asp-href-include="lib/font-awesome/css/*.css" />
+    <link rel="stylesheet" asp-href-include="lib/mgmenu/mgmenu.css" />
+    <link rel="stylesheet" asp-href-include="lib/CursorCSS/MainStyle.css" />
+    <link rel="stylesheet" asp-href-include="lib/CursorCSS/UploadFile.css" />
+    <link rel="stylesheet" asp-href-include="lib/jqwidgets/jqwidgets/styles/jqx.base.css" />
+    <link rel="stylesheet" asp-href-include="lib/jquery-ui/themes/smoothness/jquery-ui.css" />
+
+    <script asp-src-include="lib/jquery/**/jquery.min.js"></script>
+    <script asp-src-include="lib/jquery-ui/jquery-ui.js"></script>    
+    <script asp-src-include="lib/jquery-validation/dist/jquery.*.min.js"></script>
+    <script asp-src-include="lib/jquery-validation-unobtrusive/*.min.js"></script>
+    <script asp-src-include="lib/CursorShopsScripts/Utils.js"></script>
+    <style>
+        .AllPage{
+            height:100%;
+        }
+        .TopPage{
+            height:5%;
+        }
+        .BottomPage{
+            height:95%;
+        }
+    </style>
+</head>
+<body class="AllPage">
+<div class="container-fluid AllPage">
+    <div class="row TopPage">
+        <div class="col-lg-12 text-center" style="background-color:rgb(247,247,247);
+            padding-top:5px;border:1px solid RGB(221,221,221);border-radius: 5px;margin-left:5px;margin-right:15px;width:99%">
+            <div style="display:inline-block;position:absolute;left:10px;bottom:2px;">
+                <img src="~/lib/images/k_logo.gif" />
+            </div>
+            <!--Меню-->
+            <div style="display:inline-block;position:relative;">
+                <div class="page_wrapper">
+                    <div id="mgmenu1" class="mgmenu_container mobile_style" style="background-color:RGB(247,247,247)">
+                        <ul class="mgmenu">
+                            <li>
+                                <a asp-controller="HotLine" asp-action="TasksFromMe">Горячая&nbsp;Линия</a>
+                            </li>
+                            <li>
+                                <a asp-controller="Tasks" asp-action="Index">Задания</a>
+                            </li>
+                            <li>
+                                <a asp-controller="Journal" asp-action="Index">Журнал</a>
+                            </li>
+                            <li>
+                                <span>Сервисы</span>
+                                <div class="dropdown_2columns dropdown_container">
+                                    <ul class="dropdown_flyout" style="list-style:square;padding-left:10px;text-align:left;">
+                                        <li class="flyout_heading" style="margin-top:-10px">Виды&nbsp;сервисов</li>
+                                        <li style="margin-left:5px"><a asp-controller="WorkPlace" asp-action="Index">Рабочая область</a></li>
+                                        <li style="margin-left:5px"><a asp-controller="Docs" asp-action="Index">Документы</a></li>
+                                        <li style="margin-left:5px"><a asp-controller="Certificates" asp-action="Index">Сертификаты</a></li>
+                                        <li style="margin-left:5px"><a asp-controller="Conference" asp-action="Index">Конференция</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div style="display:inline-block;position:absolute;right:5px">
+                <span class="FormLabel" style="padding-right:5px;">@User.Identity.Name</span>
+                <a class="btn btn-default pull-right" style="padding-bottom:4px;" asp-action="Logout" asp-controller="Account">Сменить пользователя</a>
+            </div>
+        </div>
+
+    </div>
+    <div class="row BottomPage">
+        <div class="col-md-2 BottomPage top" style="max-width:200px">
+                    <div class="panel panel-default BottomPage" style="background-color:RGB(247,247,247);margin-top:3px;margin-left:-10px;word-wrap: break-word;text-align:center">
+                        <!--Левое меню-->
+                        @RenderSection("LeftMenu")
+                    </div>
+        </div>
+        <div class="col-md-10 BottomPage top">
+            <div class="panel panel-default BottomPage" style="margin-top:3px;margin-left:-22px;">
+                <!--Основное содержимое-->
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>
+    <i id="Waiting" class="fa fa-spinner fa-pulse fa-3x fa-fw" style="display:none; position: fixed;top: 50%; left: 50%; transform: translate(-50%, -50%);z-index:1000 !important"></i>
+</body>
+</html>

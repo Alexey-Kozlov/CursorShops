@@ -1,0 +1,31 @@
+﻿@model ShopUser
+@section LeftMenu{
+    <a asp-controller="WorkPlace" asp-action="Electro" class="btn btn-group-vertical">Электросчетчики</a>
+    <a asp-controller="WorkPlace" asp-action="CheckList" class="btn btn-group-vertical">Чек-лист</a>
+    <a asp-controller="WorkPlace" asp-action="Foto" class="btn btn-group-vertical">Фотоотчеты</a>
+    <a asp-controller="WorkPlace" asp-action="Convers" class="btn btn-group-vertical">Коэф.конверсии</a>
+}
+
+
+
+<input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model.UserName" />
+<div id="KoefConver"></div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#Waiting").show();
+        jQuery.ajax({
+            data: { reportName: "/tasks/services/Shared Documents/Коэффициент конверсии список.rdl", url: "@ViewBag.LocalServerAddress", param: 'CurrentUserLogin:easystep\\@Model.Email' },
+            type: 'POST',
+            dataType: 'json',
+            url: 'GetReports.asmx/GetReportPOST',
+            success: function (data) {
+                var objects = data.d;
+                jQuery.each(objects, function (index, objects) {
+                    document.getElementById('KoefConver').innerHTML = objects.HTML;
+                });
+                $("#Waiting").hide();
+            },
+            error: function (x, t, m) { $("#Waiting").hide(); }
+        });
+    });
+</script>

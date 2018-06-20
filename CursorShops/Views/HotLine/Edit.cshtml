@@ -1,0 +1,139 @@
+﻿@model HotLineModel
+@section LeftMenu{
+<a asp-controller="HotLine" asp-action="TasksFromMe" class="btn btn-group-vertical">Задания от меня</a>
+<a asp-controller="HotLine" asp-action="ArhiveTasks" class="btn btn-group-vertical">Выполненные задания</a>
+}
+<script asp-src-include="lib/CursorShopsScripts/FileUpload.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/GetFileContent.js"></script>
+<script>
+var AddTask = false;
+var departments;
+var users;
+var SelDep;
+var SelUsers;
+    $(document).ready(function () {
+        departments = $.parseJSON('@Html.Raw(Model.JsonDepartments)');
+        users = $.parseJSON('@Html.Raw(Model.JsonUsers)');
+
+        SelDep = document.getElementById('SelDep');
+        SelUsers = document.getElementById('SelUsers');
+        for (var i = 0; i < departments.length; i++) {
+            if (departments[i].Value == '@Html.Raw(Model.DepName)')
+                SelDep.options[i] = new Option(departments[i].Value, departments[i].Key, true, true);
+            else
+                SelDep.options[i] = new Option(departments[i].Value, departments[i].Key);
+        }
+        var j = 1;
+        SelUsers.options[0] = new Option('<-- Не выбрано -->', '');
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].Value == SelDep.options[SelDep.selectedIndex].label) {
+                if (users[i].Key == '@Html.Raw(Model.RespName)')
+                    SelUsers.options[j] = new Option(users[i].Key, users[i].Value, true, true);
+                else
+                    SelUsers.options[j] = new Option(users[i].Key, users[i].Value);
+                j++;
+            }
+        }
+
+    });
+    function changeDep(index) {
+        var i;
+        for (i = SelUsers.options.length - 1; i >= 0; i--) {
+            SelUsers.remove(i);
+        }
+        var j = 1;
+        SelUsers.options[0] = new Option('<-- Не выбрано -->', '');
+        for (i = 0; i < users.length; i++) {
+            if (users[i].Value == SelDep.options[SelDep.selectedIndex].label) {
+                SelUsers.options[j] = new Option(users[i].Key, users[i].Value);
+                j++;
+            }
+        }
+    }
+</script>
+<form method="post" asp-action="Edit" id="EditForm">
+    <div id="FileUploadDialog" title="Передача файлов..." style="display:none;">
+        <p style="text-align:center;">
+            <div id="progressbar">
+                <div id="loading" class="progress-label">Loading...</div>
+            </div>
+        </p>
+        <p id="UploadTaskFileName"></p>
+    </div>
+    <div id="AttachmentFileUploadDiv"></div>
+
+    <span id="Part1">
+        @await Component.InvokeAsync("ToolBar", new ToolBarModel() { CurrentUserName = Model.CurrentUserName, TaskModuleName = "HotLine",Status = Model.Status })
+        <table class="table table-condensed">
+            <tr>
+                <td style="width:200px">
+                    <label asp-for="TaskID"></label>
+                </td>
+                <td>
+                    <div class="FormLabelBold">@Model.TaskID</div>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:200px;">
+                    <label asp-for="JsonDepartments"></label>
+                </td>
+                <td>
+                    <select class="form-control" name="SelDep" id="SelDep" onChange="changeDep(this.selectedIndex);">></select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="JsonUsers"></label>
+                </td>
+                <td>
+                    <select class="form-control" name="SelUsers" id="SelUsers"></select>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td>
+                    <label asp-for="Body"></label>
+                </td>
+                <td>
+                    <textarea asp-for="Body" class="form-control" rows="10">@Model.Body</textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Status"></label>
+                </td>
+                <td>
+                    <div class="FormLabel">@Model.Status</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span style="font-weight:bold">Начальные данные</span>
+                </td>
+                <td>
+                    <span id="InitialData"  class="FormLabel">Инициатор - @Model.Author, отдел инициатора - @Model.AuthorDep</span>
+                </td>
+            </tr>
+            <tr id="AttachedFilesList">
+                <td>
+                    <span style="font-weight:bold">Прикрепленные файлы</span>
+                </td>
+                <td>
+                    <div style="font-size:20px;" id="FileUploadAttachmentPlace"></div>
+                </td>
+            </tr>
+        </table>
+        
+        @await Component.InvokeAsync("Comments", Model)
+        <input type="hidden" id="TaskAction" name="TaskAction" />
+        <input type="hidden" id="Status" name="Status" value="@Model.Status" />
+        <input type="hidden" id="ID" name="ID" value="@Model.ID" />
+        <input type="hidden" id="SiteID" name="SiteID" value="@Model.SiteID" />
+        <input type="hidden" id="WebID" name="WebID" value="@Model.WebID" />
+        <input type="hidden" id="ListID" name="ListID" value="@Model.ListID" />
+        <input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model.CurrentUserName" />
+        <input type="hidden" id="NewAttachedFiles" name="NewAttachedFiles" />
+        <input type="hidden" id="RespName" name="RespName" />
+    </span>
+</form>

@@ -1,0 +1,67 @@
+﻿@model HotLineModel
+@{ 
+    Layout = null;
+}
+<html>
+<body>
+    <link rel="stylesheet" asp-href-include="lib/bootstrap/dist/css/*.min.css" />
+    <script asp-src-include="lib/jquery/**/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            window.print();
+        });
+    </script>
+<table class="table table-condensed table-bordered">
+    <tr>
+        <td style="width:200px">
+            <label asp-for="TaskID"></label>
+        </td>
+        <td>
+            <div class="FormLabelBold">@Model.TaskID</div>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <label asp-for="JsonDepartments"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.DepName</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="JsonUsers"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.RespName</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="Body"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.Body</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="Author"></label>
+        </td>
+        <td>
+            <div class="FormLabel">Инициатор - @Model.Author, отдел инициатора - @Model.AuthorDep</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="Status"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.Status</div>
+        </td>
+    </tr>
+</table>
+@await Component.InvokeAsync("CommentsPrint", Model)
+    </body>
+</html>

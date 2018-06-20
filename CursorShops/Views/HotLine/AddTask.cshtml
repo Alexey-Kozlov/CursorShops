@@ -1,0 +1,99 @@
+﻿@model HotLineModel
+
+@section LeftMenu{
+<a asp-controller="HotLine" asp-action="TasksFromMe" class="btn btn-group-vertical">Задания от меня</a>
+<a asp-controller="HotLine" asp-action="ArhiveTasks" class="btn btn-group-vertical">Выполненные задания</a>
+}
+<script asp-src-include="lib/CursorShopsScripts/FileUpload.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/GetFileContent.js"></script>
+<script>
+var departments;
+var users;
+var SelDep;
+var SelUsers;
+    $(document).ready(function () {
+        departments = $.parseJSON('@Html.Raw(Model.JsonDepartments)');
+        users = $.parseJSON('@Html.Raw(Model.JsonUsers)');
+
+        SelDep = document.getElementById('SelDep');
+        SelUsers = document.getElementById('SelUsers');
+        for (var i = 0; i < departments.length; i++) {
+            if (departments[i].Value == "Отдел IT")
+                SelDep.options[i] = new Option(departments[i].Value, departments[i].Key, true, true);
+            else
+                SelDep.options[i] = new Option(departments[i].Value, departments[i].Key);
+        }
+
+        var j = 1;
+        SelUsers.options[0] = new Option('<-- Не выбрано -->','');
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].Value == SelDep.options[SelDep.selectedIndex].label) {
+                SelUsers.options[j] = new Option(users[i].Key, users[i].Value);
+                j++;
+            }
+        }
+    });
+    function changeDep(index) {
+        var i;
+        for (i = SelUsers.options.length - 1; i >= 0; i--) {
+            SelUsers.remove(i);
+        }
+        var j = 1;
+        SelUsers.options[0] = new Option('<-- Не выбрано -->', '');
+        for (i = 0; i < users.length; i++) {
+            if (users[i].Value == SelDep.options[SelDep.selectedIndex].label) {
+                SelUsers.options[j] = new Option(users[i].Key, users[i].Value);
+                j++;
+            }
+        }
+    }
+</script>
+<form method="post" asp-action="AddTask" id="AddForm">
+    <div id="AttachmentFileUploadDiv"></div>
+
+    <span id="Part1">
+        @await Component.InvokeAsync("ToolBar", new ToolBarModel() { CurrentUserName = Model.CurrentUserName, TaskModuleName = "HotLineNewTask" })
+        <table class="table table-condensed">
+            <tr>
+                <td style="width:200px;">
+                    <label asp-for="JsonDepartments"></label>
+                </td>
+                <td>
+                    <select class="form-control" name="SelDep" id="SelDep" onChange="changeDep(this.selectedIndex);">></select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="JsonUsers"></label>
+                </td>
+                <td>
+                    <select class="form-control" name="SelUsers" id="SelUsers"></select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Body"></label>
+                </td>
+                <td>
+                    <span asp-validation-for="Body" class="text-danger"></span>
+                    <textarea asp-for="Body" class="form-control" rows="10"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span style="font-weight:bold">Начальные данные</span>
+                </td>
+                <td>
+                    <span id="InitialData">Инициатор - @Model.CurrentUserName, отдел инициатора - @Model.CurrentUserDep</span>
+                </td>
+            </tr>
+        </table>
+        <div style="font-size:20px;" id="FileUploadAttachmentPlace"></div>
+        <input type="hidden" id="TaskAction" name="TaskAction" />
+        <input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model.CurrentUserName" />
+        <input type="hidden" id="Author" name="Author" value="@Model.CurrentUserName" />
+        <input type="hidden" id="JsonAttachedFiles" name="JsonAttachedFiles" />
+        <input type="hidden" id="RespName" name="RespName" />
+        <a class="btn btn-default pull-right" href="#" onclick="NewTaskAddFiles();" style="margin-right:5px">Создать заявку</a>
+    </span>
+</form>

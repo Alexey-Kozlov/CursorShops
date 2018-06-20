@@ -1,0 +1,167 @@
+﻿@model ShopUser
+@section LeftMenu{
+    <a asp-controller="Journal" asp-action="Index" class="btn btn-group-vertical">Журнал за<br />сегодня</a>
+    <a asp-controller="Journal" asp-action="Period" class="btn btn-group-vertical">Журнал за<br />период</a>
+}
+
+<style type="text/css">
+    .cell_border {
+        border: thin black solid;
+        margin-top: -1px;
+    }
+
+    .jqx-grid-header {
+        height: 50px !important;
+    }
+</style>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcore.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdata.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatatable.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxmenu.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcalendar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatetimeinput.js"></script>
+<script asp-src-include="lib/jqwidgets/globalization/localization.js"></script>
+<script asp-src-include="lib/jqwidgets/globalization/globalize.js"></script>
+
+<script type="text/javascript">
+    var source;
+    var dataAdapter;
+    $(document).ready(function () {
+        var dt = new Date();
+        $("#DateBeg").jqxDateTimeInput({ showTimeButton: false, template: "default", width: 150, height: 30, formatString: 'dd.MM.yyyy', value: dt });
+        $("#DateEnd").jqxDateTimeInput({ showTimeButton: false, template: "default", width: 150, height: 30, formatString: 'dd.MM.yyyy', value: dt });
+        $.getScript('/lib/jqwidgets/globalization/globalize.culture.ru-RU.js', function () {
+            $("#DateBeg").jqxDateTimeInput({ culture: 'ru-RU' });
+            $("#DateEnd").jqxDateTimeInput({ culture: 'ru-RU' });
+        });
+        SetSource();
+        LoadGrid();
+    });
+    function SetSource() {
+        source = {
+            datatype: "json",
+            datafields: [
+                { name: 'ID', type: 'int' },
+                { name: 'Destination', type: 'string' },
+                { name: 'Created', type: 'string' },
+                { name: 'JournalDate', type: 'date' },
+                { name: 'ReturnDate', type: 'date' },
+                { name: 'Purpose', type: 'string' },
+                { name: 'Status', type: 'string' },
+                { name: 'Transport', type: 'string' },
+                { name: 'UserClosed', type: 'string' },
+                { name: 'UserName', type: 'string' }
+            ],
+            cache: false,
+            url: 'EsMVCWebJournal.asmx/FindJournalRecords',
+            type: "POST",
+            id: 'ID',
+            pagesize: 50
+        };
+    }
+
+    function LoadGrid() {
+        var render_date = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var tmp_date = '';
+            if (!value || value == '')
+                tmp_date = '';
+            else {
+                tmp_date = convertTime(new Date(parseInt(value.replace('/Date(', ''))));
+                if (tmp_date == '01.01.1')
+                    tmp_date = '';
+            }
+            return '<div class=\"jqx-grid-cell-left-align\" style=\"margin-top: 13px;\">' +
+                tmp_date + '</div>';
+        }
+        dataAdapter = new jQuery.jqx.dataAdapter(source, {
+            loadServerData: function (serverdata, source, callback) {
+                var postData = {};
+                postData.UserName = "@Html.Raw(Model?.UserName)";
+                postData.DateBeg = getStringFromDate($("#DateBeg").jqxDateTimeInput('getDate'));
+                postData.DateEnd = getStringFromDate($("#DateEnd").jqxDateTimeInput('getDate'));
+                jQuery.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: 'EsMVCWebJournal.asmx/FindJournalRecords',
+                    data: postData,
+                    success: function (data, status, xhr) {
+                        callback({ records: data });
+                    }
+                });
+
+            }
+
+        });
+        jQuery("#dataTable").jqxDataTable({
+            source: dataAdapter,
+            columnsResize: true,
+            pageable: true,
+            autoRowHeight: false,
+            width: '100%',
+            height: '450px',
+            columns: [
+                { text: 'Убыл', datafield: 'JournalDate', columntype: 'datetimeinput', align: 'center', cellsformat: 'hh:MM', cellclassname: 'cell_border', filtertype: 'date', cellsrenderer: render_date, width: '5%' },
+                { text: 'Кто', datafield: 'UserName', align: 'center', cellclassname: 'cell_border', width: '15%' },
+                { text: 'Пункт назначения', datafield: 'Destination', cellclassname: 'cell_border', align: 'center', width: '15%' },
+                { text: 'Цель поездки', datafield: 'Purpose', align: 'center', cellclassname: 'cell_border', width: '18%' },
+                { text: 'Транспорт', datafield: 'Transport', align: 'center', cellclassname: 'cell_border', width: '16%' },
+                { text: 'Внесено', datafield: 'Created', align: 'center', cellclassname: 'cell_border', width: '12%' },
+                { text: 'Возвращение', datafield: 'UserClosed', align: 'center', cellclassname: 'cell_border', cellsrenderer: render_actions,  width: '18%' }
+            ]
+        });
+        }
+        function convertDate(dt) {
+            var dd = dt.getDate();
+            var mm = dt.getMonth() + 1;
+            var yyyy = dt.getFullYear();
+            if (dd < 10) { dd = '0' + dd; }
+            if (mm < 10) { mm = '0' + mm; }
+            return dd + '.' + mm + '.' + yyyy;
+        }
+        function convertTime(dt) {
+            var hh = dt.getHours();
+            var mm = dt.getMinutes();
+            if (hh < 10) { hh = '0' + hh; }
+            if (mm < 10) { mm = '0' + mm; }
+            return hh + ':' + mm;
+        }
+        var render_actions = function (row, columnfield, value, defaulthtml, columnproperties) {
+            return '<div class=\"jqx-grid-cell-left-align\" style=\"margin-top: 13px;\">' + value + '</div>';
+        }
+        function Search() {
+            $("#dataTable").jqxDataTable('updateBoundData');
+        }
+
+</script>
+<form asp-action="GetHotLine" method="post" id="frm1">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2" style="text-align:right">
+                <table><tr><td style="text-align:center">Дата<br />начала</td><td style="padding-left:5px"><div id="DateBeg"></div></td></tr></table>
+            </div>
+            <div class="col-md-2" style="text-align:left">
+                <table><tr><td style="text-align:center">Дата<br />окончания</td><td style="padding-left:5px"><div id="DateEnd"></div></td></tr></table>
+            </div>
+            <div class="col-md-8" style="text-align:left;padding-top:5px">
+                <a class="btn btn-default" href="#" onclick="Search();" style="margin-right:5px" id="AddButton">Найти</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="text-align:center">
+                <span style="font-size:18px;font-weight:bold;margin:auto">Записи в журнале</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="dataTable"></div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="ID" name="ID" />
+    <input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model?.UserName" />
+</form>
+
+
+

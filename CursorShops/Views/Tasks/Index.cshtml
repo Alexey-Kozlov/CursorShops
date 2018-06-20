@@ -1,0 +1,174 @@
+﻿@model ShopUser
+@section LeftMenu{
+    <a asp-controller="Tasks" asp-action="Index" class="btn btn-group-vertical">Задания в работе</a>
+    <a asp-controller="Tasks" asp-action="ExecutedTasks" class="btn btn-group-vertical">Задания на<br />подтверждении<br />выполнения</a>
+    <a asp-controller="Tasks" asp-action="CompletedTasks" class="btn btn-group-vertical">Завершенные задания</a>
+}
+
+    <style type="text/css">
+        .cell_border {
+            border: thin black solid;
+            margin-top: -1px;
+        }
+
+        .jqx-grid-header {
+            height: 50px !important;
+        }
+    </style>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxcore.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxdata.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxmenu.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxcheckbox.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxlistbox.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxdropdownlist.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.sort.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.filter.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.pager.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.selection.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.edit.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.columnsresize.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxcalendar.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatetimeinput.js"></script>
+    <script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.grouping.js"></script>
+    <script asp-src-include="lib/jqwidgets/globalization/localization.js"></script>
+
+
+    <script type="text/javascript">
+    var source;
+    var dataAdapter;
+    $(document).ready(function () {
+        SetSource();
+        LoadGrid();
+    });
+    function SetSource() {
+        source = {
+            datatype: "json",
+            datafields: [
+                { name: 'TaskID', type: 'int' },
+                { name: 'ID', type: 'int' },
+                { name: 'Title', type: 'string' },
+                { name: 'Author', type: 'string' },
+                { name: 'ProjectName', type: 'string'},
+                { name: 'DueDate', type: 'date' },
+                { name: 'StartDate', type: 'date' },
+                { name: 'Resp', type: 'string' },
+                { name: 'Status', type: 'string' },
+                { name: 'UrlLink', type: 'string' }
+            ],
+            cache: false,
+            url: 'EsMVCWebTasks.asmx/GetTaskList',
+            type: "POST",
+            id: 'TaskID',
+            pagesize: 10
+        };
+    }
+    function LinkAction(url) {
+        $("#Waiting").show();
+        $("#ID").val(getParameterByName('ID', url));
+        $("#ListID").val(getParameterByName('ListID', url));
+        $("#WebID").val(getParameterByName('WebID', url));
+        $("#SiteID").val(getParameterByName('SiteID', url));
+        $("#CurrentUserName").val("@Html.Raw(Model?.UserName)");
+        document.forms["frm1"].submit();
+    };
+    function LoadGrid() {
+        var renderlink = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var url = dataAdapter.records[row].UrlLink;
+            return '<div style="word-wrap:break-word;white-space:pre-wrap;">' +
+                '<a style="display:block;padding-left:10px;padding-top:5px;" href="#" onclick="LinkAction(\'' + url + '\')">' + value + '</a></div>';
+        };
+        var render_date = function (row, columnfield, value, defaulthtml, columnproperties) {
+            var tmp_date = '';
+            if (!value || value == '')
+                tmp_date = '';
+            else {
+                tmp_date = convertDate(new Date(parseInt(value.replace('/Date(', ''))));
+                if (value == '01.01.1')
+                    tmp_date = '';
+            }
+            return '<div class=\"jqx-grid-cell-left-align\" style=\"margin-top: 13px;\">' +
+                tmp_date + '</div>';
+        }
+        dataAdapter = new jQuery.jqx.dataAdapter(source, {
+            loadServerData: function (serverdata, source, callback) {
+                var postData = {};
+                postData.UserName = "@Html.Raw(Model?.UserName)";
+                postData.Selector = "1";
+                jQuery.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: 'EsMVCWebTasks.asmx/GetTaskList',
+                    data: postData,
+                    success: function (data, status, xhr) {
+                        callback({ records: data, totalrecords: 6 });
+                    }
+                });
+
+            },
+
+            loadError: function (jqXHR, status, error) {
+                $('#err_1').text(status + ' ' + error);
+            },
+        });
+        jQuery("#jqxgrid").jqxGrid({
+            width: '100%',
+            height: '100%',
+            source: dataAdapter,
+            altrows: true,
+            rowsheight: 55,
+            sortable: true,
+            filterable: true,
+            pageable: true,
+            groupable: true,
+            pagesizeoptions: ['100', '1000', '5000'],
+            autoshowfiltericon: true,
+            columnsresize: true,
+            showemptyrow: true,
+            localization: getLocalization('ru'),
+            rendergridrows: function () {
+                return dataAdapter.records;
+            },
+            columnsresize: true,
+            columns: [
+                { text: 'Наименование', datafield: 'Title', align: 'center', cellsrenderer: renderlink, width: '29%' },
+                { text: 'Номер<br>задания', datafield: 'TaskID', align: 'center', cellclassname: 'cell_border', width: '5%' },
+                { text: 'Тип<br>задания', datafield: 'ProjectName', align: 'center', cellclassname: 'cell_border', width: '13%' },
+                { text: 'Дата<br>начала', datafield: 'StartDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '6%' },
+                { text: 'Срок<br>выполнения', datafield: 'DueDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '6%' },
+                { text: 'Автор задания', datafield: 'Author', align: 'center', width: '10%', cellclassname: 'cell_border' },
+                { text: 'Исполнитель', datafield: 'Resp', align: 'center', width: '10%', cellclassname: 'cell_border' },
+                { text: 'Состояние', datafield: 'Status', align: 'center', cellclassname: 'cell_border', width: '8%' },
+            ],
+            groups: ['Resp'],
+            groupsexpandedbydefault: true,
+            showgroupsheader: false
+        });
+        }
+        function convertDate(dt) {
+            var dd = dt.getDate();
+            var mm = dt.getMonth() + 1;
+            var yyyy = dt.getFullYear();
+            if (dd < 10) { dd = '0' + dd; }
+            if (mm < 10) { mm = '0' + mm; }
+            return dd + '.' + mm + '.' + yyyy;
+        }
+    </script>
+<form asp-action="GetTask" method="post" id="frm1">
+    <div style="width:100%;text-align:center">
+        <span style="font-size:18px;font-weight:bold;margin:auto">Задания в работе</span>
+    </div>
+    <div id='jqxWidget' style="font-size:13px; font-family:Verdana; float:left; width:100%; height:600px;">
+        <div id="jqxgrid"></div>
+    </div>
+    <input type="hidden" id="ID" name="ID" />
+    <input type="hidden" id="SiteID" name="SiteID" />
+    <input type="hidden" id="WebID" name="WebID" />
+    <input type="hidden" id="ListID" name="ListID" />
+    <input type="hidden" id="CurrentUserName" name="CurrentUserName" />
+</form>
+
+
+

@@ -1,0 +1,122 @@
+﻿@model ShopUser
+@section LeftMenu{
+    <a asp-controller="Certificates" asp-action="Index" class="btn btn-group-vertical">Сертификаты</a>
+}
+
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcore.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdata.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatatable.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/ReplaceImages.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/GetFileContent.js"></script>
+<style type="text/css">
+    .jqx-grid-cell {
+        border: none;
+    }
+
+    .jqx-grid {
+        border: none;
+    }
+
+    .jqx-grid-header {
+        border: none;
+    }
+
+    .jqx-grid-column-header {
+        background-color: white;
+    }
+</style>
+
+<script type="text/javascript">
+    var dataAdapter;
+    var FolderID = '';
+    $(document).ready(function () {
+        var source =
+            {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Guid', type: 'string' },
+                    { name: 'FileName', type: 'string' },
+                    { name: 'IsFolder', type: 'string' },
+                    { name: 'Url', type: 'string' },
+                    { name: 'IconUrl', type: 'string' },
+                    { name: 'Created', type: 'date' },
+                    { name: 'SortOrder', type: 'number' }
+                ],
+                cache: false,
+                type: "POST",
+                id: 'Guid',
+                url: 'EsMVCWebUtils.asmx/GetFolders'
+            };
+        dataAdapter = new jQuery.jqx.dataAdapter(source, {
+            loadServerData: function (serverdata, source, callback) {
+                var postData = {};
+                postData.UserName = "@Html.Raw(Model?.UserName)";
+                postData.SiteID = "30FDB227-84B5-4660-974B-29CB08C0B297";
+                postData.WebID = "0F0E48E2-E55A-4368-8611-54BA4B7121B2";
+                postData.ListID = "D03BC17E-4F93-41CE-9363-4BB406F67E19";
+                postData.FolderID = FolderID;
+                jQuery.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: 'EsMVCWebUtils.asmx/GetFolders',
+                    data: postData,
+                    success: function (data, status, xhr) {                        
+                        data.FileCollection.sort(function (a, b) {
+                            //return a.FileName.localeCompare(b.FileName);
+                            return a.SortOrder - b.SortOrder;
+                        });
+                        
+                        //инициализируем контрол пути к папке
+                        if (data.FolderPath) {
+                            var rez = '<div>';
+                            var pt = JSON.parse(data.FolderPath);
+                            for (var i = pt.length - 1;i >= 0; i--) {
+                                var link_click = "RecClick('" + pt[i].FolderID + "');";
+                                rez += '<a style="color:blue;font-size:20px;" href="#" onclick="' + link_click + '">' + pt[i].FolderName +
+                                    '</a><img style="padding-left:5px;padding-right:5px;padding-bottom:10px;" src="/lib/images/right_arrow.png"/>';
+                            }
+                            $("#filePath").html(rez + '</div>');
+                        }
+                        callback({ records: data.FileCollection });
+                    }
+                });
+
+            },
+        });
+        $("#dataTable").jqxDataTable(
+            {
+                source: dataAdapter,
+                columnsResize: true,
+                width: '100%',
+                height: '100%',
+                columns: [
+                    { text: 'Имя', dataField: 'FileName', cellsrenderer: cell_render }
+                ]
+
+            });
+        $('#dataTable').on('bindingComplete', function (event) {
+            ManualReplaceImages();
+        });
+    });
+    var cell_render = function (row, columnfield, value, defaulthtml, columnproperties) {
+        if (defaulthtml.IsFolder) {
+            var link_click = "RecClick('" + defaulthtml.Guid + "');";
+            return '<div><a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + link_click +
+                '"><img src="/lib/images/FOLDER32.gif"/></a><a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + link_click + '">' + value + '</a></div>';
+        } else {
+            var _serviceUrl = 'EsMVCWebUtils.asmx/GetBytesFromUrl';
+            var href_action = "getBinaryFile('" + defaulthtml.Url + "','" + defaulthtml.FileName + "','" + _serviceUrl + "'); ";
+            return '<div><a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + href_action + '"><img id="' +
+                defaulthtml.Guid + '" class="img_replace" src="" FileName="' + defaulthtml.IconUrl + '" IsSystemIcon="true"/></a>' +
+                '<a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + href_action + '">' + value + '</a></div>';
+        }
+    }
+    function RecClick(guid) {
+        FolderID = guid;
+        $("#dataTable").jqxDataTable('updateBoundData');
+    }
+</script>
+<div id="filePath"></div>
+<div id="dataTable"></div>

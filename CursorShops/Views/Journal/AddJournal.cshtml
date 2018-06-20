@@ -1,0 +1,112 @@
+﻿@model JournalModel
+
+@section LeftMenu{
+    <a asp-controller="Journal" asp-action="Index" class="btn btn-group-vertical">Журнал за<br />сегодня</a>
+    <a asp-controller="Journal" asp-action="Period" class="btn btn-group-vertical">Журнал за<br />период</a>
+}
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcore.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatetimeinput.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcalendar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxtooltip.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxvalidator.js"></script> 
+<script asp-src-include="lib/jqwidgets/globalization/globalize.js"></script>
+
+<script>
+    var AddTask = true;
+    var departments;
+    var users;
+    var SelDep;
+    var SelUsers;
+    $(document).ready(function () {
+        var dt = new Date();
+        $("#JournalDateInput").jqxDateTimeInput({ showTimeButton: true, template: "default", width: 300, height: 30, formatString: 'dd.MM.yyyy HH:mm', value : dt });
+        $.getScript('/lib/jqwidgets/globalization/globalize.culture.ru-RU.js', function () {
+            $("#JournalDateInput").jqxDateTimeInput({ culture: 'ru-RU' });
+        });
+        $('#AddJournal').jqxValidator({
+            hintType: 'label',
+            position: 'center',
+            animationDuration: 300,
+            rules: [{
+                input: '#Purpose',
+                message: 'Необходимо указать цель поездки!',
+                action: 'keyup',
+                rule: function (input, commit) {
+                    var editorValue = $.trim(input.val());
+                    if (editorValue == "" || editorValue == '') {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }]
+        });
+    });
+    function SetMessage(message,control){
+        $('#' + control).val(message);
+    }
+    function AddJournal() {
+        $("#Waiting").show();
+        if ($("#AddJournal").jqxValidator('validate')) {
+            var dt = getStringFromDate($("#JournalDateInput").jqxDateTimeInput('getDate'));
+            $('#JournalDate').val(dt);
+            document.forms["AddJournal"].submit();
+        } else {
+            $("#Waiting").hide();
+        }
+    }
+</script>
+<form method="post" asp-action="AddJournal" id="AddJournal">
+    <span id="Part1">
+        @await Component.InvokeAsync("ToolBar", new ToolBarModel() { CurrentUserName = Model.CurrentUserName, TaskModuleName = "Journal", Status= @Model.Status })
+        <table class="table table-condensed">
+            <tr>
+                <td style="width:200px;">
+                    <label asp-for="JournalDate"></label>
+                </td>
+                <td>
+                    <div id="JournalDateInput"></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="CurrentUserName"></label>
+                </td>
+                <td>
+                    <input asp-for="CurrentUserName" class="form-control" readonly="readonly" value="@Model.CurrentUserName" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Purpose"></label>
+                </td>
+                <td>      
+                    <input asp-for="Purpose" class="form-control"/><br /><a href="#" onclick="SetMessage('По личным делам','Purpose')">По личным делам</a>
+                    &nbsp;&nbsp;<a href="#" onclick="SetMessage('Документы','Purpose')">Документы</a>
+                    &nbsp;&nbsp;<a href="#" onclick="SetMessage('Оплата счетов','Purpose')">Оплата счетов</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Destination"></label>
+                </td>
+                <td>
+                    <input asp-for="Destination" class="form-control" /><br /><a href="#" onclick="SetMessage('Банк','Destination')">Банк</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Transport"></label>
+                </td>
+                <td>
+                    <input asp-for="Transport" class="form-control" /><br /><a href="#" onclick="SetMessage('Общественный','Transport')">Общественный</a>
+                    &nbsp;&nbsp;<a href="#" onclick="SetMessage('Личный','Transport')">Личный</a>
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model.CurrentUserName" />
+        <input type="hidden" id="Action" name="Action" value="AddJournal" />
+        <input type="hidden" id="JournalDate" name="JournalDate" />
+        <a class="btn btn-default pull-right" href="#" onclick="AddJournal();" style="margin-right:5px" id="AddButton">Создать заявку</a>
+    </span>
+</form>

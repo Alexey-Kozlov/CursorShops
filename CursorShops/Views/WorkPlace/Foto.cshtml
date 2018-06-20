@@ -1,0 +1,400 @@
+﻿@model ShopUser
+@section LeftMenu{
+    <a asp-controller="WorkPlace" asp-action="Electro" class="btn btn-group-vertical">Электросчетчики</a>
+    <a asp-controller="WorkPlace" asp-action="CheckList" class="btn btn-group-vertical">Чек-лист</a>
+    <a asp-controller="WorkPlace" asp-action="Foto" class="btn btn-group-vertical">Фотоотчеты</a>
+    <a asp-controller="WorkPlace" asp-action="Convers" class="btn btn-group-vertical">Коэф.конверсии</a>
+}
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcore.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdata.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatatable.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxmenu.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/FileUpload.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/GetFileContent.js"></script>
+
+<style type="text/css">
+
+    .jqx-grid {
+        border: none;
+        height: 550px;
+    }
+
+    .jqx-grid-header {
+        border: none;
+    }
+
+    .jqx-grid-column-header {
+        background-color: white;
+        border: none;
+        font-weight:bold;
+    }
+
+    .contextMenu {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 10px;
+    }
+
+    .context_row:hover {
+        background-color: lightgray;
+        border: solid black 1px;
+        cursor: pointer;
+    }
+
+    img {
+        cursor:pointer;
+    }
+
+</style>
+
+<script type="text/javascript">
+    var dataAdapter;
+    var rowIndex = null;
+    var deleteGUID = null;
+    var SetImmediatlyFileSend = true;
+    var CurrentFolderName;
+    var CurrentFolderId;
+    var IsReadOnly;
+    var IsFolder;
+    var IsEditingFolderName = false;
+    var RowsCount;
+
+    $(document).ready(function () {
+        var source =
+            {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Guid', type: 'string' },
+                    { name: 'FileName', type: 'string' },
+                    { name: 'IsFolder', type: 'string' },
+                    { name: 'Url', type: 'string' },
+                    { name: 'IconUrl', type: 'string' },
+                    { name: 'Size', type: 'string' },
+                    { name: 'Created', type: 'date' },
+                    { name: 'IsReadOnly', type: 'string'}
+                ],
+                cache: false,
+                type: "POST",
+                id: 'Guid',
+                url: 'EsMVCWebUtils.asmx/GetFolders',
+                deleteRow: function (rowID, commit) {
+                    //удаление записи
+                    var postData = {};
+                    postData.UserName = "@Html.Raw(Model?.UserName)";
+                    postData.SiteID = "5350CD60-8702-4871-AABE-7849D10CAB82";
+                    postData.WebID = "309E817E-D486-4822-9D6F-1E652F6FE79F";
+                    postData.ListID = "1D8169C7-3DF7-434F-BD48-39A3D5F22DCD";
+                    postData.GUID = deleteGUID;
+                    jQuery.ajax({
+                        dataType: "json",
+                        type: "POST",
+                        url: 'EsMVCWebUtils.asmx/DeleteRecord',
+                        data: postData,
+                        success: function (data, status, xhr) {
+                            if (!data.Rezult) {
+                                alert('Ошибка удаления записи.' + data.Value);
+                                return;
+                            } else {
+                                commit(true);
+                            }
+                        }
+                    });
+                }
+            };
+        dataAdapter = new jQuery.jqx.dataAdapter(source, {
+            loadServerData: function (serverdata, source, callback) {
+                var postData = {};
+                postData.UserName = "@Html.Raw(Model?.UserName)";
+                postData.SiteID = "5350CD60-8702-4871-AABE-7849D10CAB82";
+                postData.WebID = "309E817E-D486-4822-9D6F-1E652F6FE79F";
+                postData.ListID = "1D8169C7-3DF7-434F-BD48-39A3D5F22DCD";
+                postData.FolderID = $('#ListID').val();
+                postData.IsPreview = "true";
+                jQuery.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: 'EsMVCWebUtils.asmx/GetFolders',
+                    data: postData,
+                    success: function (data, status, xhr) {
+                        data.FileCollection.sort(function (a, b) {
+                            return a.FileName.localeCompare(b.FileName);
+                        });
+                        //инициализируем контрол пути к папке
+                        if (data.FolderPath) {
+                            var rez = '<div>';
+                            var pt = JSON.parse(data.FolderPath);
+                            for (var i = pt.length - 1;i >= 0; i--) {
+                                var link_click = "RecClick('" + pt[i].FolderID + "');";
+                                rez += '<a style="color:blue;font-size:20px;" href="#" onclick="' + link_click + '">' + pt[i].FolderName +
+                                    '</a><img style="padding-left:5px;padding-right:5px;padding-bottom:10px;" src="/lib/images/right_arrow.png"/>';
+                            }
+                            $("#filePath").html(rez + '</div>');
+                        }
+                        if (data.FileCollection.length > 0) {
+                            RowsCount = data.FileCollection.length;      
+                            var IsFilesExists = false;
+                            //если в текущей папке находятся только папки - отображаем их с малой высотой строки. Если есть хотя бы один файл - отображаем всю структуру с большой высотой строки.
+                            for (var i = 0; i < data.FileCollection.length; i++) {
+                                if (!data.FileCollection[i].IsFolder) {
+                                    IsFilesExists = true;
+                                    break;
+                                }
+                            }
+                            if (IsFilesExists) {
+                                //для отображения файлов - делаем высоту ячеек 85 пикселей - иначе может быть глюк с некоррекным увеличенисем таблицы при отрисовке превьюшек изображений
+                                var style = document.getElementsByTagName('head')[0].innerHTML;
+                                style = style.replace('.jqx-grid-cell { border: none; height: 40px;}', '.jqx-grid-cell { border: none; height: 85px;}');
+                                document.getElementsByTagName('head')[0].innerHTML = style;
+                            } else {
+                                //для отображения папок - делаем высоту ячеек 40 пикселей - там список папок смотрится лучше.
+                                var style = document.getElementsByTagName('head')[0].innerHTML;
+                                style = style.replace('.jqx-grid-cell { border: none; height: 85px;}', '.jqx-grid-cell { border: none; height: 40px;}');
+                                document.getElementsByTagName('head')[0].innerHTML = style;
+                            }
+
+                            if (!data.FileCollection[0].IsReadOnly) {
+                                $('#CreateFolder').show();
+                                ShowAttachmentDialog();
+                            } else {
+                                $('#CreateFolder').hide();                                
+                                GridCancelAttach();
+                            }
+                        }
+                        else
+                            RowsCount = 0;
+                        callback({ records: data.FileCollection });                       
+                    }
+                });
+
+            },
+        });
+        $("#dataTable").jqxDataTable(
+            {
+                source: dataAdapter,
+                columnsResize: true,
+                pageable: false,
+                autoRowHeight: false,
+                width: '100%',
+                height: '550px',
+                columns: [
+                    { text: 'Имя', dataField: 'FileName', cellsrenderer: cell_render },
+                    { text: 'Размер', dataField: 'Size', width: 100, cellsrenderer:size_render },
+                    { text: 'Создан', dataField: 'Created', width: 150, columntype: 'datetimeinput', cellsrenderer: date_render, cellsformat: 'dd.MM.yyyy' },
+                    { text: 'Удалить файл', dataField: 'Guid', width: 150, cellsrenderer: del_link },
+                ]
+
+            });
+
+        $("#dataTable").on('rowSelect', function (event) {
+            var args = event.args;
+            rowIndex = args.index;
+            deleteGUID = args.key;
+            CurrentFolderName = args.row.FileName;
+            IsReadOnly = args.row.IsReadOnly;
+            IsFolder = args.row.IsFolder;
+            CurrentFolderId = args.row.Guid;
+        });
+
+        var contextMenu = $('#Menu').jqxMenu({ width: 150, height: 70, autoOpenPopup: false, mode: 'popup' });
+        $('#dataTable').on('contextmenu', function () {
+            return false;
+        });
+
+        $("#dataTable").on('rowClick', function (event) {
+            var args = event.args;
+            if (args.originalEvent.button == 2) {
+                $("#dataTable").jqxDataTable('selectRow', args.index);
+                if (IsReadOnly || IsFolder == false)
+                    return;                
+                var scrollTop = $(window).scrollTop();
+                var scrollLeft = $(window).scrollLeft();
+                contextMenu.jqxMenu('open', parseInt(event.args.originalEvent.clientX) + 5 + scrollLeft, parseInt(event.args.originalEvent.clientY) + 5 + scrollTop);
+                return false;
+            } else {
+                $("#Menu").jqxMenu('close');
+            }
+        });
+        //удаление папки
+        $('.DelRec').on('click', function (event) {
+            $("#Menu").jqxMenu('close');
+            if (confirm('Действительно удалить папку "' + CurrentFolderName +'" ?')) {
+                jQuery.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    data: { SiteID: "5350CD60-8702-4871-AABE-7849D10CAB82", WebID: "309E817E-D486-4822-9D6F-1E652F6FE79F", FolderID: deleteGUID },
+                    url: 'EsMVCWebUtils.asmx/DeleteFolder',
+                    success: function (data) {
+                        $("#dataTable").jqxDataTable('updateBoundData');
+                    },
+                    error: function (error) {
+                        alert(error.responseText);
+                    }
+                });
+            }
+        });
+        //изменение названия папки
+        $('.EditRec').on('click', function (event) {
+            $("#Menu").jqxMenu('close');
+            $('#CreateFolderName').val(CurrentFolderName);
+            $('#CreateFolderButton').text('Изменить название');
+            IsEditingFolderName = true;
+            $('#CreateFolderDialog').dialog({ modal: true, height: 200, width: 370 });
+        });
+                
+        //var script = document.createElement("script");
+        //script.src = "/lib/CursorShopsScripts/FileUpload.js";
+        //document.head.appendChild(script);
+        
+    });
+    //изначально отображаем структуру с малой высотой строки
+    var style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = '.jqx-grid-cell { border: none; height: 40px;}';
+    document.getElementsByTagName('head')[0].appendChild(style);
+
+    var cell_render = function (row, columnfield, value, defaulthtml, columnproperties) {
+        if (defaulthtml.IsFolder) {
+            var link_click = "RecClick('" + defaulthtml.Guid + "');";
+            return '<div><img src="/lib/images/FOLDER32.gif"/ onclick="' + link_click + '"><a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + link_click + '">' + value + '</a></div>';
+        } else {
+            var href_action = "getBinaryFile('" + defaulthtml.Url + "','" + defaulthtml.FileName + "','EsMVCWebUtils.asmx/GetBytesFromUrl');";
+            return '<div><img src="' + defaulthtml.Url + '"/ onclick="' + href_action + '">' +
+            '<a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + href_action + '">' + value + '</a></div>';
+        }
+    }
+
+
+    var size_render = function (row, columnfield, value, defaulthtml, columnproperties) {
+        if (!defaulthtml.IsFolder)
+            return value + ' Кб.';
+        else
+            return '';
+    }
+    var date_render = function (row, columnfield, value, defaulthtml, columnproperties) {
+        if (!defaulthtml.IsFolder) {
+            var tmp_date = convertDate(new Date(parseInt(value.replace('/Date(', ''))));
+            return '<div class=\"jqx-grid-cell-left-align\" style=\"margin-top: 13px;\">' +
+                tmp_date + '</div>';
+        }
+        else
+            return '';
+    }
+    function convertDate(dt) {
+        var dd = dt.getDate();
+        var mm = dt.getMonth() + 1;
+        var yyyy = dt.getFullYear();
+        if (dd < 10) { dd = '0' + dd; }
+        if (mm < 10) { mm = '0' + mm; }
+        return dd + '.' + mm + '.' + yyyy;
+    }
+
+    var del_link = function (row, columnfield, value, defaulthtml, columnproperties) {
+        if (!defaulthtml.IsFolder)
+            return '<div style="word-wrap:break-word;white-space:pre-wrap;">' +
+                '<a style="padding-left:10px;padding-top:5px;" class="btn btn-default" href="#" onclick="DeleteAction();">Удалить</a></div>';
+        else
+            return '';
+    }
+    
+    function RecClick(guid) {
+        $('#ListID').val(guid);
+        $("#dataTable").jqxDataTable('updateBoundData');
+    }
+    
+    function DeleteAction() {
+        if (confirm('Действительно удалить запись "' + CurrentFolderName + '" ?')) {
+            $("#Waiting").show();
+            $("#dataTable").jqxDataTable('deleteRow', rowIndex);
+            $("#Waiting").hide();
+        }
+    }
+    function FilesAdded() {
+        $("#dataTable").jqxDataTable('updateBoundData');
+        $('#FileUploadDialog').dialog('close');
+    }
+    function CreateFolderDialog() {
+        IsEditingFolderName = false;
+        $('#CreateFolderName').val('');
+        $('#CreateFolderButton').text('Создать папку');
+        $('#CreateFolderDialog').dialog({ modal: true, height: 200, width: 330 });
+    }
+    function CreateFolder() {
+        if ($('#CreateFolderName').val().indexOf(".") != -1) {
+            alert('В названии папки не должно быть символов "."');
+            return;
+        }
+        var Guid;
+        if (IsEditingFolderName)
+            Guid = CurrentFolderId;
+        else
+            Guid = $('#ListID').val();
+        $("#Waiting").show();
+        $.ajax({
+            type: "POST",
+            data: { FolderName: $('#CreateFolderName').val(), WebID: $('#WebID').val(), ParentFolderID: Guid, SiteID: $('#SiteID').val(), IsEditingFolderName: IsEditingFolderName },
+            url: 'EsMVCWebUtils.asmx/CreateFolder',
+            success: function (data, status, xhr) {
+                $("#Waiting").hide();
+                if (data.Rezult == false) {
+                    alert(data.Value);
+                    return;
+                }
+                $("#dataTable").jqxDataTable('updateBoundData');
+                $('#CreateFolderDialog').dialog('close');
+            },
+            error: function (error) {
+                $("#Waiting").hide();
+                alert(error.responseText);
+            }
+        });
+    }
+    
+</script>
+
+    <span id="Part1"></span>
+    <div id="filePath"></div>
+    <div id="CreateFolder" style="display:none; float:left;width:180px;height:165px;border:solid darkcyan 1px">        
+        <div style="color:darkcyan;font-size:20px;text-align:center;padding-top:15px">Создание новой папки</div>
+        <div style="text-align:center;padding-top:30px"><a class="btn btn-default" href="#" onclick="CreateFolderDialog();">Создать папку</a></div>
+    </div>    
+    <div id="AttachmentFileUploadDiv" style="float:left;"></div>
+    <div id="FileUploadAttachmentPlace"></div>
+
+    <div id="dataTable"></div>
+    <input type="hidden" id="ID" name="ID" value="" />
+    <input type="hidden" id="SiteID" name="SiteID" value="5350CD60-8702-4871-AABE-7849D10CAB82" />
+    <input type="hidden" id="WebID" name="WebID" value="309E817E-D486-4822-9D6F-1E652F6FE79F" />
+    <input type="hidden" id="ListID" name="ListID" value="" />
+    <input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model.UserName" />
+    <input type="hidden" id="NewAttachedFiles" name="NewAttachedFiles" />
+
+<div id="FileUploadDialog" title="Передача файлов..." style="display:none;">
+    <p style="text-align:center;">
+        <div id="progressbar">
+            <div id="loading" class="progress-label">Передача...</div>
+        </div>
+    </p>
+    <p id="UploadTaskFileName"></p>
+</div>
+<div id="CreateFolderDialog" title="Создать папку" style="display:none;">
+    <div><label>Наименование папки:</label></div>
+    <div style="float:left"><input type="text" id="CreateFolderName" name="CreateFolderName" class="form-control" style="width:300px" /></div>
+    <div class="form-group" style="margin-top:60px;padding-left:40px">
+        <a class="btn btn-default" href="#" onclick="CreateFolder();" id="CreateFolderButton">Создать папку</a>
+        <a class="btn btn-default" href="#" onclick="$('#CreateFolderDialog').dialog('close');">Отмена</a>
+    </div>
+</div>
+<div id='Menu'>
+    <table width="95%" style="margin:5px;">
+        <tr class="context_row">
+            <td style="text-align:center;" class="contextMenu DelRec"><img src='~/lib/images/delete.gif'/></td>
+            <td style="padding-left:5px;" class="contextMenu DelRec"><a href="#">Удалить</a></td>
+        </tr>
+        <tr class="context_row">
+            <td style="text-align:center;" class="contextMenu EditRec"><img src='~/lib/images/editicon.gif'/></td>
+            <td style="padding-left:5px;" class="contextMenu EditRec"><a href="#">Изменить</a></td>
+        </tr>
+    </table>
+</div>

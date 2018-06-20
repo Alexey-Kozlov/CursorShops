@@ -1,0 +1,32 @@
+﻿@model IEnumerable<CursorShops.Models.CommentModel>
+
+<script asp-src-include="lib/CursorShopsScripts/ReplaceImages.js"></script>
+<script>
+    var url = '@Startup.Configuration["RootWebSericeAddress"]';
+</script>
+<div style="text-align:center;width:100%;font-size:16px;font-weight:600">Раздел комментариев</div>
+<table id="CommentArea" class="table table-condensed table-bordered table-striped" style="width:100%">
+<thead>
+    <tr>
+        <th style="width:100px">Дата</th>
+        <th style="width:100px">Автор</th>
+        <th>Сообщение</th>
+    </tr>
+</thead>
+<tbody>
+        @foreach (CursorShops.Models.CommentModel md in Model)
+        {
+            <tr>
+                <td>
+                    <div>@md.CommentDate.ToString("dd.MM.yyyy HH:mm")</div>
+                </td>
+                <td>
+                    <div>@md.Author</div>
+                </td>
+                <td>
+                    <div>@Html.Raw(@md.Text)</div>
+                </td>
+            </tr>
+        }
+</tbody>
+</table>

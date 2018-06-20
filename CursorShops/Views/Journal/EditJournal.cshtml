@@ -1,0 +1,106 @@
+﻿@model JournalModel
+
+@section LeftMenu{
+    <a asp-controller="Journal" asp-action="Index" class="btn btn-group-vertical">Журнал за<br />сегодня</a>
+    <a asp-controller="Journal" asp-action="Period" class="btn btn-group-vertical">Журнал за<br />период</a>
+}
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcore.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatetimeinput.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcalendar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxtooltip.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxvalidator.js"></script> 
+<script asp-src-include="lib/jqwidgets/globalization/globalize.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var dt = '@Model.JournalDate';
+        var t1 = dt.split(" ");
+        var dt1 = t1[0].split(".");
+        var dt2 = t1[1].split(":");
+        var dt3 = new Date(dt1[2], dt1[1] - 1, dt1[0], dt2[0], dt2[1]);
+        $("#JournalDateInput").jqxDateTimeInput({ showTimeButton: true, template: "default", width: 300, height: 30, formatString: 'dd.MM.yyyy HH:mm', value: dt3 });
+        $.getScript('/lib/jqwidgets/globalization/globalize.culture.ru-RU.js', function () {
+            $("#JournalDateInput").jqxDateTimeInput({ culture: 'ru-RU' });
+        });
+        $('#JournalDate').val(getStringFromDate($("#JournalDateInput").jqxDateTimeInput('getDate')));
+        $('#JournalDateInput').on('change', function (event) {
+            var dt = getStringFromDate(event.args.date);
+            $('#JournalDate').val(dt);
+        }); 
+        $('#EditForm').jqxValidator({
+            hintType: 'label',
+            position: 'center',
+            animationDuration: 300,
+            rules: [{
+                input: '#Purpose',
+                message: 'Необходимо указать цель поездки!',
+                action: 'keyup',
+                rule: function (input, commit) {
+                    var editorValue = $.trim(input.val());
+                    if (editorValue == "" || editorValue == '') {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }]
+        });
+    });
+    function SetMessage(message,control){
+        $('#' + control).val(message);
+    }
+</script>
+<form method="post" asp-action="EditJournal" id="EditForm">
+    <span id="Part1">
+        @await Component.InvokeAsync("ToolBar", new ToolBarModel() { CurrentUserName = Model.CurrentUserName, TaskModuleName = "Journal", Status= @Model.Status })
+        <table class="table table-condensed">
+            <tr>
+                <td style="width:200px;">
+                    <label asp-for="JournalDate"></label>
+                </td>
+                <td>
+                    <div id="JournalDateInput"></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="CurrentUserName"></label>
+                </td>
+                <td>
+                    <input asp-for="CurrentUserName" class="form-control" readonly="readonly" value="@Model.CurrentUserName" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Purpose"></label>
+                </td>
+                <td>      
+                    <input asp-for="Purpose" class="form-control"/><br /><a href="#" onclick="SetMessage('По личным делам','Purpose')">По личным делам</a>
+                    &nbsp;&nbsp;<a href="#" onclick="SetMessage('Документы','Purpose')">Документы</a>
+                    &nbsp;&nbsp;<a href="#" onclick="SetMessage('Оплата счетов','Purpose')">Оплата счетов</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Destination"></label>
+                </td>
+                <td>
+                    <input asp-for="Destination" class="form-control" /><br /><a href="#" onclick="SetMessage('Банк','Destination')">Банк</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Transport"></label>
+                </td>
+                <td>
+                    <input asp-for="Transport" class="form-control" /><br /><a href="#" onclick="SetMessage('Общественный','Transport')">Общественный</a>
+                    &nbsp;&nbsp;<a href="#" onclick="SetMessage('Личный','Transport')">Личный</a>
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model.CurrentUserName" />
+        <input type="hidden" id="ID" name="ID" value="@Model.ID" />
+        <input type="hidden" id="JournalDate" name="JournalDate" />
+        <input type="hidden" id="Action" name="Action" />
+    </span>
+</form>

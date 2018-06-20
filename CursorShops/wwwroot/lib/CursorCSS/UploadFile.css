@@ -1,0 +1,38 @@
+﻿#ES_DropZone {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    padding: 5px 25px 25px 25px;
+    text-align: center;
+    height: 110px;
+    width: 590px;
+    font: 26pt bold;
+}
+
+.ES_dropDef {
+    border: 2px dashed #bbb;
+    color: #bbb;
+}
+
+.ES_over {
+    border: 2px solid blue;
+    color: blue;
+}
+
+.progress-label {
+    position: absolute;
+    left: 50%;
+    top: 4px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+}
+
+.progress_outer {
+    border: 1px solid #000;
+}
+
+.progress {
+    width: 20%;
+    background: #DEDEDE;
+    height: 20px;
+}

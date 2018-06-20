@@ -1,0 +1,83 @@
+﻿@model TaskModel
+@{ 
+    Layout = null;
+}
+<html>
+<body>
+    <link rel="stylesheet" asp-href-include="lib/bootstrap/dist/css/*.min.css" />
+    <script asp-src-include="lib/jquery/**/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            window.print();
+        });
+    </script>
+<table class="table table-condensed table-bordered">
+    <tr>
+        <td style="width:200px">
+            <label asp-for="TaskID"></label>
+        </td>
+        <td>
+            <div class="FormLabelBold">@Model.TaskID</div>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <label asp-for="Title"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.Title</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="DueDate"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@string.Concat(@Model.DueDate.ToString("d.MM.yyyy"), " г.")</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="Body"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.Body</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="Author"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.Author</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="Resp"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.Resp</div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="CommentMustBe"></label>
+        </td>
+        <td>
+            <input type="checkbox" checked="@Model.CommentMustBe" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="Status"></label>
+        </td>
+        <td>
+            <div class="FormLabel">@Model.Status</div>
+        </td>
+    </tr>
+</table>
+@await Component.InvokeAsync("CommentsPrint", Model)
+    </body>
+</html>

@@ -1,0 +1,12 @@
+﻿@model ShopUser
+@section LeftMenu{
+    <a asp-controller="Conference" asp-action="Conference2" class="btn btn-group-vertical" asp-route-id="@Model.Email" >Видеоконференция<br />Тюленева</a>
+    <a asp-controller="Conference" asp-action="Conference3" class="btn btn-group-vertical" asp-route-id="@Model.Email">Видеоконференция<br />Иванова</a>
+    <a asp-controller="Conference" asp-action="Conference" class="btn btn-group-vertical" asp-route-id="@Model.Email">Видеоконференция<br />Фатеева</a>
+    <a asp-controller="Conference" asp-action="ConferenceCommon1" class="btn btn-group-vertical" asp-route-id="@Model.Email">Видеоконференция<br />Общая 1</a>
+    <a asp-controller="Conference" asp-action="ConferenceCommon2" class="btn btn-group-vertical" asp-route-id="@Model.Email">Видеоконференция<br />Общая 2</a>
+    <a asp-controller="Conference" asp-action="ConferenceGuest" class="btn btn-group-vertical" asp-route-id="@Model.Email">Гостевая<br />видеоконференция</a>
+    <a asp-controller="Conference" asp-action="Records" class="btn btn-group-vertical" asp-route-id="@Model.Email">Записи<br />трансляций</a>
+}
+
+

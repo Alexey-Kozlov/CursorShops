@@ -1,0 +1,195 @@
+﻿@model ShopUser
+@section LeftMenu{
+    <a asp-controller="Conference" asp-action="Conference2" class="btn btn-group-vertical">Видеоконференция<br />Тюленева</a>
+    <a asp-controller="Conference" asp-action="Conference3" class="btn btn-group-vertical">Видеоконференция<br />Иванова</a>
+    <a asp-controller="Conference" asp-action="Conference" class="btn btn-group-vertical">Видеоконференция<br />Фатеева</a>
+    <a asp-controller="Conference" asp-action="ConferenceCommon1" class="btn btn-group-vertical">Видеоконференция<br />Общая 1</a>
+    <a asp-controller="Conference" asp-action="ConferenceCommon2" class="btn btn-group-vertical">Видеоконференция<br />Общая 2</a>
+    <a asp-controller="Conference" asp-action="ConferenceGuest" class="btn btn-group-vertical">Гостевая<br />видеоконференция</a>
+    <a asp-controller="Conference" asp-action="Records" class="btn btn-group-vertical">Записи<br />трансляций</a>
+}
+
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcore.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdata.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatatable.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/ReplaceImages.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/GetFileContent.js"></script>
+
+<link rel="stylesheet" asp-href-include="lib/mediaelement/build/mediaelementplayer.min.css" />
+<script asp-src-include="lib/mediaelement/build/mediaelement-and-player.min.js"></script>
+<script asp-src-include="lib/mediaelement/build/lang/ru.js"></script>
+<script asp-src-include="lib/mediaelement/build/renderers/dailymotion.js"></script>
+<script asp-src-include="lib/mediaelement/build/renderers/facebook.js"></script>
+<script asp-src-include="lib/mediaelement/build/renderers/soundcloud.js"></script>
+<script asp-src-include="lib/mediaelement/build/renderers/twitch.js"></script>
+<script asp-src-include="lib/mediaelement/build/renderers/vimeo.js"></script>
+
+<style type="text/css">
+    .jqx-grid-cell {
+        border: none;
+    }
+
+    .jqx-grid {
+        border: none;
+    }
+
+    .jqx-grid-header {
+        border: none;
+    }
+
+    .jqx-grid-column-header {
+        background-color: white;
+    }
+    .players .mejs__time-buffering,
+    .players .mejs__time-current,
+    .players .mejs__time-handle,
+    .players .mejs__time-loaded,
+    .players .mejs__time-marker,
+    .players .mejs__time-total,
+    .players .mejs__time-hovered {
+        height: 12px;
+    }
+
+    .players .mejs__time-total {
+        margin-top: 9px;
+    }
+
+    .players .mejs__time-handle {
+        left: -5px;
+        width: 12px;
+        height: 24px;
+        border-radius: 50%;
+        background: #ffffff;
+        top: -5px;
+        cursor: pointer;
+        display: block;
+        position: absolute;
+        z-index: 2;
+        border: none;
+    }
+
+    .players .mejs__time-handle-content {
+        top: 0;
+        left: 0;
+        width: 12px;
+        height: 24px;
+    }
+
+</style>
+
+<script type="text/javascript">
+    var dataAdapter;
+    var FolderID = ''; 
+
+    $(document).ready(function () {
+        var source =
+            {
+                dataType: "json",
+                dataFields: [
+                    { name: 'Guid', type: 'string' },
+                    { name: 'FileName', type: 'string' },
+                    { name: 'IsFolder', type: 'string' },
+                    { name: 'Url', type: 'string' },
+                    { name: 'IconUrl', type: 'string' },
+                    {name: 'Created', type:'date'}
+                ],
+                cache: false,
+                type: "POST",
+                id: 'Guid',
+                url: 'EsMVCWebUtils.asmx/GetFolders',
+            };
+        dataAdapter = new jQuery.jqx.dataAdapter(source, {
+            loadServerData: function (serverdata, source, callback) {
+                var postData = {};
+                postData.UserName = "@Html.Raw(Model?.UserName)";
+                postData.SiteID = "5350CD60-8702-4871-AABE-7849D10CAB82";
+                postData.WebID = "C2B454D2-8CB2-44E3-A3EA-78B6FDD2D19A";
+                postData.ListID = "032EDC0A-29F0-4A7D-A9BE-046B6B6CADB2";
+                postData.FolderID = FolderID;
+                postData.IsPreview = "true";
+                jQuery.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: 'EsMVCWebUtils.asmx/GetFolders',
+                    data: postData,
+                    success: function (data, status, xhr) {
+                        data.FileCollection.sort(function (a, b) {
+                            return a.FileName.localeCompare(b.FileName);
+                        });
+                        //инициализируем контрол пути к папке
+                        if (data.FolderPath) {
+                            var rez = '<div>';
+                            var pt = JSON.parse(data.FolderPath);
+                            for (var i = pt.length - 1;i >= 0; i--) {
+                                var link_click = "RecClick('" + pt[i].FolderID + "');";
+                                rez += '<a style="color:blue;font-size:20px;" href="#" onclick="' + link_click + '">' + pt[i].FolderName +
+                                    '</a><img style="padding-left:5px;padding-right:5px;padding-bottom:10px;" src="/lib/images/right_arrow.png"/>';
+                            }
+                            $("#filePath").html(rez + '</div>');
+                        }
+                        callback({ records: data.FileCollection });
+                    },
+                    error: function (error) {
+                        alert(error.responseText);
+                    }
+                });
+
+            },
+        });
+        $("#dataTable").jqxDataTable(
+            {
+                source: dataAdapter,
+                columnsResize: true,
+                width: '100%',
+                height: '100%',
+                columns: [
+                    { text: 'Имя', dataField: 'FileName', cellsrenderer: cell_render }
+                ]
+
+            });
+        $('#dataTable').on('bindingComplete', function (event) {
+            ManualReplaceImages();
+        });
+    });
+    var cell_render = function (row, columnfield, value, defaulthtml, columnproperties) {
+        if (defaulthtml.IsFolder) {
+            var link_click = "RecClick('" + defaulthtml.Guid + "');";
+            return '<div><img src="/lib/images/FOLDER32.gif"/ onclick="' + link_click + '"><a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + link_click + '">' + value + '</a></div>';
+        } else {
+            var _serviceUrl = 'EsMVCWebUtils.asmx/GetBytesFromUrl';
+            var href_action = "getBinaryFile('@ViewBag.host" + defaulthtml.Url + "','" + defaulthtml.FileName + "','" + _serviceUrl + "','','','','','',true); ";
+            if (defaulthtml.FileName.indexOf('.mp3') != -1) {
+                //ставим иконку mp3
+                return '<div><span class="glyphicon glyphicon-music"></span>' +
+                    '<a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + href_action + '">' + value + '</a></div>';
+            }
+            if (defaulthtml.FileName.indexOf('.mp4') != -1) {
+                //ставим иконку video
+                return '<div><span class="glyphicon glyphicon-film"></span>' +
+                    '<a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + href_action + '">' + value + '</a></div>';
+            }
+            return '<div><img id="' + defaulthtml.Guid + '" class="img_replace" src="" FileName="' + defaulthtml.IconUrl + '" IsSystemIcon="true"/>' +
+                '<a style="margin-left:10px;color:black;font-size:18px;" href="#" onclick="' + href_action + '">' + value + '</a></div>';
+        }
+    }
+    function RecClick(guid) {
+        FolderID = guid;
+        $("#dataTable").jqxDataTable('updateBoundData');
+    }
+
+</script>
+<div id="filePath"></div>
+<div id="dataTable"></div>
+
+<div class="players" id="player2-container" style="display:none;">
+    <div class="media-wrapper">
+        <audio class="mejs__player" id="audioplayer" preload="none" controls="controls" style="width:100%;height:100%"></audio>
+    </div>
+</div>
+<div class="players" id="player1-container" style="display:none;">
+    <div class="media-wrapper">
+        <video class="mejs__player" id="videoplayer" preload="none" controls="controls" style="width:100%;height:100%"></video>
+    </div>
+</div>

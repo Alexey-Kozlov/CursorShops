@@ -1,0 +1,83 @@
+﻿@{ 
+    Layout = null;
+}
+<html>
+<head>
+    <link rel="stylesheet" asp-href-include="lib/jPlayer-2.9.2/dist/skin/blue.monday/css/jplayer.blue.monday.min.css" />
+    <script asp-src-include="lib/jPlayer-2.9.2/dist/jplayer/jquery.jplayer.min.js"></script>
+    <script asp-src-include="lib/jquery/**/jquery.min.js"></script>
+    <script asp-src-include="lib/jquery-ui/jquery-ui.js"></script>
+</head>
+<body>
+    <div id="jp_container_1" class="jp-video jp-video-270p" role="application" aria-label="media player">
+        <div class="jp-type-playlist">
+            <div id="jquery_jplayer_1" class="jp-jplayer"></div>
+            <div class="jp-gui">
+                <div class="jp-video-play">
+                    <button class="jp-video-play-icon" role="button" tabindex="0">play</button>
+                </div>
+                <div class="jp-interface">
+                    <div class="jp-progress">
+                        <div class="jp-seek-bar">
+                            <div class="jp-play-bar"></div>
+                        </div>
+                    </div>
+                    <div class="jp-current-time" role="timer" aria-label="time">&nbsp;</div>
+                    <div class="jp-duration" role="timer" aria-label="duration">&nbsp;</div>
+                    <div class="jp-controls-holder">
+                        <div class="jp-controls">
+                            <button class="jp-previous" role="button" tabindex="0">previous</button>
+                            <button class="jp-play" role="button" tabindex="0">play</button>
+                            <button class="jp-next" role="button" tabindex="0">next</button>
+                            <button class="jp-stop" role="button" tabindex="0">stop</button>
+                        </div>
+                        <div class="jp-volume-controls">
+                            <button class="jp-mute" role="button" tabindex="0">mute</button>
+                            <button class="jp-volume-max" role="button" tabindex="0">max volume</button>
+                            <div class="jp-volume-bar">
+                                <div class="jp-volume-bar-value"></div>
+                            </div>
+                        </div>
+                        <div class="jp-toggles">
+                            <button class="jp-repeat" role="button" tabindex="0">repeat</button>
+                            <button class="jp-full-screen" role="button" tabindex="0">full screen</button>
+                        </div>
+                    </div>
+                    <div class="jp-details">
+                        <div class="jp-title" aria-label="title">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var url = '';
+            $("#jquery_jplayer").jPlayer({
+                ready: function (event) {
+                    $(this).jPlayer("setMedia", {
+                        title: "Bubble",
+                        m4v: url,
+                        webmv: url,
+                        ogv: url
+                    }).jPlayer("play");
+                },
+                swfPath: "lib/jPlayer-2.9.2/dist/jplayer",
+                supplied: "m4v,webmv,ogv",
+                wmode: "window",
+                useStateClassSkin: true,
+                autoBlur: false,
+                smoothPlayBar: true,
+                keyEnabled: true,
+                remainingDuration: true,
+                toggleDuration: true,
+                fullWindow: true
+
+            });
+        });
+    </script>
+
+</body>
+</html>

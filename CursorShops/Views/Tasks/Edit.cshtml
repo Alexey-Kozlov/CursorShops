@@ -1,0 +1,120 @@
+﻿@model TaskModel
+@section LeftMenu{
+    <a asp-controller="Tasks" asp-action="Index" class="btn btn-group-vertical">Задания в работе</a>
+    <a asp-controller="Tasks" asp-action="ExecutedTasks" class="btn btn-group-vertical">Задания на<br />подтверждении<br />выполнения</a>
+    <a asp-controller="Tasks" asp-action="CompletedTasks" class="btn btn-group-vertical">Завершенные задания</a>
+}
+<script asp-src-include="lib/CursorShopsScripts/FileUpload.js"></script>
+<script asp-src-include="lib/CursorShopsScripts/GetFileContent.js"></script>
+<form method="post" asp-action="Edit" id="EditForm">
+
+        <div id="FileUploadDialog" title="Передача файлов..." style="display:none;">
+            <p style="text-align:center;">
+                <div id="progressbar">
+                    <div id="loading" class="progress-label">Передача...</div>
+                </div>
+            </p>
+            <p id="UploadTaskFileName"></p>
+        </div>
+        <div id="AttachmentFileUploadDiv"></div>
+
+        <span id="Part1">
+            @await Component.InvokeAsync("ToolBar", new ToolBarModel() { CurrentUserName = Model.CurrentUserName, TaskModuleName = "Task",Status = Model.Status })
+            <table class="table table-condensed">
+                @if (Model.ProjectName != "Задания")
+                {
+                <tr>
+                    <td style="width:200px">
+                        <label asp-for="ProjectName"></label>
+                    </td>
+                    <td>
+                        <div class="FormLabelBold">@Model.ProjectName</div>
+                    </td>
+                </tr>
+                }
+                <tr>
+                    <td style="width:200px">
+                        <label asp-for="TaskID"></label>
+                    </td>
+                    <td>
+                        <div class="FormLabelBold">@Model.TaskID</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label asp-for="Title"></label>
+                    </td>
+                    <td>
+                        <div class="FormLabel">@Model.Title</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label asp-for="DueDate"></label>
+                    </td>
+                    <td>
+                        <div class="FormLabel">@string.Concat(@Model.DueDate.ToString("d.MM.yyyy"), " г.")</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label asp-for="Body"></label>
+                    </td>
+                    <td>
+                        <div class="FormLabel">@Html.Raw(Model.Body)</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label asp-for="Author"></label>
+                    </td>
+                    <td>
+                        <div class="FormLabel">@Model.Author</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label asp-for="Resp"></label>
+                    </td>
+                    <td>
+                        <div class="FormLabel">@Model.Resp</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label asp-for="CommentMustBe"></label>
+                    </td>
+                    <td>
+                        <input type="checkbox" checked="@Model.CommentMustBe" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label asp-for="Status"></label>
+                    </td>
+                    <td>
+                        <div class="FormLabel">@Model.Status</div>
+                    </td>
+                </tr>
+                <tr id="AttachedFilesList">
+                    <td>
+                        <span style="font-weight:bold">Прикрепленные файлы</span>
+                    </td>
+                    <td>
+                        <div style="font-size:20px;" id="FileUploadAttachmentPlace"></div>
+                    </td>
+                </tr>
+            </table>
+            @await Component.InvokeAsync("Comments", Model)
+            <input type="hidden" id="TaskAction" name="TaskAction" />
+            <input type="hidden" id="Status" name="Status" value="@Model.Status" />
+            <input type="hidden" id="ID" name="ID" value="@Model.ID" />
+            <input type="hidden" id="SiteID" name="SiteID" value="@Model.SiteID" />
+            <input type="hidden" id="WebID" name="WebID" value="@Model.WebID" />
+            <input type="hidden" id="ListID" name="ListID" value="@Model.ListID" />
+            <input type="hidden" id="CommentMustBe" name="CommentMustBe" value="@Model.CommentMustBe.ToString()" />
+            <input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model.CurrentUserName" />
+            <input type="hidden" id="NewAttachedFiles" name="NewAttachedFiles" />
+
+        </span>
+</form>

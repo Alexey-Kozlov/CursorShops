@@ -1,0 +1,170 @@
+﻿@model ShopUser
+@section LeftMenu{
+    <a asp-controller="WorkPlace" asp-action="Electro" class="btn btn-group-vertical">Электросчетчики</a>
+    <a asp-controller="WorkPlace" asp-action="CheckList" class="btn btn-group-vertical">Чек-лист</a>
+    <a asp-controller="WorkPlace" asp-action="Foto" class="btn btn-group-vertical">Фотоотчеты</a>
+    <a asp-controller="WorkPlace" asp-action="Convers" class="btn btn-group-vertical">Коэф.конверсии</a>
+}
+
+<style type="text/css">
+    .cell_border {
+        border: thin black solid;
+        margin-top: -1px;
+    }
+
+    .jqx-grid-header {
+        height: 50px !important;
+    }
+</style>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcore.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdata.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxbuttons.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxscrollbar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxmenu.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcheckbox.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxlistbox.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdropdownlist.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.selection.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.edit.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxgrid.columnsresize.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxcalendar.js"></script>
+<script asp-src-include="lib/jqwidgets/jqwidgets/jqxdatetimeinput.js"></script>
+<script asp-src-include="lib/jqwidgets/globalization/localization.js"></script>
+
+<script type="text/javascript">
+    var source;
+    var dataAdapter;
+    $(document).ready(function () {
+        SetSource();
+        LoadGrid();
+    });
+    function SetSource() {
+        source = {
+            datatype: "json",
+            datafields: [
+                { name: 'CounterName', type: 'string' },
+                { name: 'ID', type: 'int' },
+                { name: 'Period', type: 'string' },
+                { name: 'LastCounter', type: 'int' },
+                { name: 'NewCounter', type: 'int' },
+                { name: 'Difference', type: 'int' },
+                { name: 'RowNumber', type: 'int'}
+            ],
+            cache: false,
+            url: 'EsMVCWebUtils.asmx/GetCountersList',
+            type: "POST",
+            id: 'ID',
+            pagesize: 50,
+            sortcolumn: 'RowNumber',
+            sortdirection: 'asc',
+            updaterow: function (rowid, rowdata, commit) {
+                var postData = {};
+                postData.UserName = "@Html.Raw(Model?.UserName)";
+                postData.RowID = rowdata.ID;
+                postData.LastValue = rowdata.LastCounter;
+                postData.NewValue = rowdata.NewCounter;
+                jQuery.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: 'EsMVCWebUtils.asmx/SetCounterRecord',
+                    data: postData,
+                    success: function (data, status, xhr) {
+                        if (data.Rezult == true)
+                        {
+                            rowdata.Difference = data.Value;
+                            commit(true);
+                            setTimeout(function () {
+                                $("#jqxgrid").jqxGrid("updatebounddata");
+                            }, 1000);
+                        } else {
+                            commit(false);
+                        }
+                    }
+                });
+
+            },
+        };
+    }
+
+    function LoadGrid() {
+        dataAdapter = new jQuery.jqx.dataAdapter(source, {
+            loadServerData: function (serverdata, source, callback) {
+                var postData = {};
+                postData.UserName = "@Html.Raw(Model?.UserName)";
+                jQuery.ajax({
+                    dataType: "json",
+                    type: "POST",
+                    url: 'EsMVCWebUtils.asmx/GetCountersList',
+                    data: postData,
+                    success: function (data, status, xhr) {
+                        callback({ records: data, totalrecords: 6 });
+                    }
+                });
+
+            },
+
+            loadError: function (jqXHR, status, error) {
+                $('#err_1').text(status + ' ' + error);
+            },
+        });
+        jQuery("#jqxgrid").jqxGrid({
+            width: '100%',
+            height: '100%',
+            source: dataAdapter,
+            altrows: true,
+            rowsheight: 55,
+            columnsresize: true,
+            showemptyrow: true,
+            editable: true,
+            enabletooltips: true,
+            selectionmode: 'multiplecellsadvanced',
+            localization: getLocalization('ru'),
+            rendergridrows: function () {
+                return dataAdapter.records;
+            },
+            columnsresize: true,
+            columns: [
+                { text: 'Счетчик', datafield: 'CounterName', align: 'center', width: '20%', editable: false },
+                { text: 'Период', datafield: 'Period', align: 'center', width: '15%', editable: false },
+                {
+                    text: 'Предыдущий счетчик', datafield: 'LastCounter', align: 'center', width: '15%',
+                    validation: function (cell, value) {
+                        if (isNaN(value)) {
+                            return { result: false, message: "Ошибка - нужно ввести числовое значение!" };
+                        }
+                        return true;
+                    },
+                },
+                {
+                    text: 'Показание счетчика', datafield: 'NewCounter', align: 'center', width: '15%',
+                    validation: function (cell, value) {
+                        if (isNaN(value)) {
+                            return { result: false, message: "Ошибка - нужно ввести числовое значение!" };
+                        }
+                        return true;
+                    },
+                },
+                { text: 'Разница в показаниях', datafield: 'Difference', editable: false,  align: 'center', width: '15%' }
+            ]
+        });
+    }
+    $("#jqxgrid").on('cellendedit', function (event) {
+        var args = event.args;
+        $("#cellendeditevent").text("Event Type: cellendedit, Column: " + args.datafield + ", Row: " + (1 + args.rowindex) + ", Value: " + args.value);
+
+    });
+</script>
+<form asp-action="GetHotLine" method="post" id="frm1">
+    <div style="width:100%;text-align:center">
+        <span style="font-size:18px;font-weight:bold;margin:auto">Ввод показаний электросчетчиков</span>
+    </div>
+    <div id='jqxWidget' style="font-size:13px; font-family:Verdana; float:left; width:100%; height:600px;">
+        <div id="jqxgrid"></div>
+    </div>
+    <input type="hidden" id="ID" name="ID" />
+    <input type="hidden" id="CurrentUserName" name="CurrentUserName" />
+</form>
+
+
+

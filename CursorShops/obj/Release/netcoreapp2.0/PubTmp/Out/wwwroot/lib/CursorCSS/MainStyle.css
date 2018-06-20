@@ -1,0 +1,49 @@
+﻿body {
+}
+.ControlBg{
+    background-color:seashell !important;
+}
+button.ControlBg {
+    background-color: seashell !important;
+    border: solid black 1px;
+}
+button.ControlBg:hover {
+    background-color:aqua !important;
+}
+.FormLabel {
+    font-style: initial;
+    font-weight:normal;
+    float: left;
+    font-size:20px;
+}
+.FormLabelBold {
+    font-style: initial;
+    font-weight: bold;
+    float: left;
+    font-size: 26px;
+}
+.ToolBarButtons {
+    padding:10px;
+}
+.ToolBarButtons div {
+    width: 70px;
+    height:70px;
+    text-align: center;
+    padding-top:5px;
+}
+.ToolBarButtons div div {
+    font-size: 12px;
+    line-height: 12px;
+    text-align: center;
+    margin-left:-16px;
+    padding-top:5px;
+}
+.ToolBarButtons div img {
+    display: block;
+    margin: 0 auto;
+}
+
+.ToolBarButtons div:hover:not(.ToolBarCaption) {
+    cursor: pointer;
+    border: 1px solid black;
+}

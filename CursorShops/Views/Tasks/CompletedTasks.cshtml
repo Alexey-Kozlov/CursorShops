@@ -115,7 +115,7 @@
         });
         jQuery("#jqxgrid").jqxGrid({
             width: '100%',
-            height: '100%',
+            height: '670',
             source: dataAdapter,
             altrows: true,
             rowsheight: 55,
@@ -133,11 +133,11 @@
             },
             columnsresize: true,
             columns: [
-                { text: 'Наименование', datafield: 'Title', align: 'center', cellsrenderer: renderlink, width: '29%' },
+                { text: 'Наименование', datafield: 'Title', align: 'center', cellsrenderer: renderlink, width: '34%' },
                 { text: 'Номер<br>задания', datafield: 'TaskID', align: 'center', cellclassname: 'cell_border', width: '5%' },
                 { text: 'Тип<br>задания', datafield: 'ProjectName', align: 'center', cellclassname: 'cell_border', width: '13%' },
-                { text: 'Дата<br>начала', datafield: 'StartDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '6%' },
-                { text: 'Срок<br>выполнения', datafield: 'DueDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '6%' },
+                { text: 'Дата<br>начала', datafield: 'StartDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '10%' },
+                { text: 'Срок<br>выполнения', datafield: 'DueDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '10%' },
                 { text: 'Автор задания', datafield: 'Author', align: 'center', width: '10%', cellclassname: 'cell_border' },
                 { text: 'Исполнитель', datafield: 'Resp', align: 'center', width: '10%', cellclassname: 'cell_border' },
                 { text: 'Состояние', datafield: 'Status', align: 'center', cellclassname: 'cell_border', width: '8%' },
@@ -158,7 +158,7 @@
     <div style="width:100%;text-align:center">
         <span style="font-size:18px;font-weight:bold;margin:auto">Завершенные задания</span>
     </div>
-    <div id='jqxWidget' style="font-size:13px; font-family:Verdana; float:left; width:100%; height:600px;">
+    <div id='jqxWidget' class="GridStyle">
         <div id="jqxgrid"></div>
     </div>
     <input type="hidden" id="ID" name="ID" />

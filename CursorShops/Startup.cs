@@ -26,8 +26,8 @@ namespace CursorShops
         }
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<ShopIdentityDbContext>(options => options.UseSqlServer(Configuration["ConnectionStringsAzure:DefaultConnection"]));
-            services.AddDbContext<ShopIdentityDbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]));
+            services.AddDbContext<ShopIdentityDbContext>(options => options.UseSqlServer(Configuration["ConnectionStringsAzure:DefaultConnection"]));
+            //services.AddDbContext<ShopIdentityDbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]));
             services.AddIdentity<ShopUser, IdentityRole>(opts => {
                 opts.Password.RequiredLength = 6;
                 opts.Password.RequireNonAlphanumeric = false;

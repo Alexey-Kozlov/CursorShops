@@ -115,7 +115,7 @@
         });
         jQuery("#jqxgrid").jqxGrid({
             width: '100%',
-            height: '100%',
+            height: '670',
             source: dataAdapter,
             altrows: true,
             rowsheight: 55,
@@ -133,12 +133,12 @@
             },
             columnsresize: true,
             columns: [
-                { text: 'Наименование', datafield: 'Body', align: 'center', cellsrenderer: renderlink, width: '29%' },
-                { text: 'Номер<br>задания', datafield: 'TaskID', align: 'center', cellclassname: 'cell_border', width: '5%' },
+                { text: 'Наименование', datafield: 'Body', align: 'center', cellsrenderer: renderlink, width: '40%' },
+                { text: 'Номер<br>задания', datafield: 'TaskID', align: 'center', cellclassname: 'cell_border', width: '10%' },
                 { text: 'Исполнитель', datafield: 'RespName', align: 'center', width: '15%' },
-                { text: 'Дата<br>начала', datafield: 'StartDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '6%' },
-                { text: 'Срок<br>выполнения', datafield: 'DueDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '6%' },
-                { text: 'Состояние', datafield: 'Status', align: 'center', cellclassname: 'cell_border', width: '8%' },
+                { text: 'Дата<br>начала', datafield: 'StartDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '10%' },
+                { text: 'Срок<br>выполнения', datafield: 'DueDate', align: 'center', columntype: 'datetimeinput', cellsrenderer: render_date, cellclassname: 'cell_border', filtertype: 'date', cellsformat: 'dd.MM.yyyy', width: '10%' },
+                { text: 'Состояние', datafield: 'Status', align: 'center', cellclassname: 'cell_border', width: '15%' },
             ]
         });
         }
@@ -152,14 +152,14 @@
         }
 </script>
 <form asp-action="GetHotLine" method="post" id="frm1">
-    <div style="width:500px;">
+    <div style="width:100%;">
        <img style="padding-bottom:10px;padding-left:15px" src="~/lib/images/AddIcon.png" />&nbsp;&nbsp;      
         <a href="#" onclick="NewTask();" style="font-size:24px;color:#555555">Новая заявка в "Горячую Линию"</a>
     </div>
     <div style="width:100%;text-align:center">
         <span style="font-size:18px;font-weight:bold;margin:auto">Задания от меня</span>        
     </div>
-    <div id='jqxWidget' style="font-size:13px; font-family:Verdana; float:left; width:100%; height:600px;">
+    <div id='jqxWidget' class="GridStyle">
         <div id="jqxgrid"></div>
     </div>
     <input type="hidden" id="ID" name="ID" />

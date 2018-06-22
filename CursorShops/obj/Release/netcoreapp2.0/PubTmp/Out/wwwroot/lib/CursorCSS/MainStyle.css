@@ -10,12 +10,14 @@ button.ControlBg {
 button.ControlBg:hover {
     background-color:aqua !important;
 }
-.FormLabel {
+.UserLabel {
     font-style: initial;
-    font-weight:normal;
-    float: left;
-    font-size:20px;
+    font-weight: normal;
+    display: inline-block;
+    font-size: 20px;
+    padding-right: 5px;
 }
+
 .FormLabelBold {
     font-style: initial;
     font-weight: bold;
@@ -46,4 +48,76 @@ button.ControlBg:hover {
 .ToolBarButtons div:hover:not(.ToolBarCaption) {
     cursor: pointer;
     border: 1px solid black;
+}
+
+.MainFlex{
+    display:flex;
+    flex-direction:column;
+}
+
+.TopFlex {
+    background-color: rgb(247,247,247);
+    padding-top: 5px;
+    border: 1px solid RGB(221,221,221);
+    border-radius: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.TopLogo{
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding-left: 5px;
+}
+
+.TopMenu {
+    flex-grow: 1;
+    flex-shrink: 0;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 350px;
+    min-width: 300px;
+}
+
+.TopUserLogin {
+    flex-grow: 0;
+    flex-shrink: 1;
+    padding-right: 5px;
+    margin: 0;
+}
+
+.BottomFlex{
+    display:flex;
+    min-height:700px;
+}
+
+.LeftMain {
+    max-width: 200px;
+    flex-grow: 0;
+    background-color: RGB(247,247,247);
+    margin-top: 3px;
+    word-wrap: break-word;
+    text-align: center;
+    border: 1px solid RGB(221,221,221);
+    border-radius: 5px;
+    margin-left: 5px;
+
+}
+
+.RightMain {
+    flex-grow: 1;
+    margin-top: 3px;
+    margin-left: 5px;
+    background-color: RGB(247,247,247);
+    border: 1px solid RGB(221,221,221);
+    border-radius: 5px;
+    padding-right: 5px;
+}
+.GridStyle {
+    min-height: 670px;
+
 }

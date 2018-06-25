@@ -53,47 +53,60 @@ var SelUsers;
 
     <span id="Part1">
         @await Component.InvokeAsync("ToolBar", new ToolBarModel() { CurrentUserName = Model.CurrentUserName, TaskModuleName = "HotLineNewTask" })
-        <table class="table table-condensed">
-            <tr>
-                <td style="width:200px;">
+        <table class="FormStyle">
+            <tr> 
+                <td class="FormLabels">
                     <label asp-for="JsonDepartments"></label>
                 </td>
-                <td>
+                <td class="FormValues">
                     <select class="form-control" name="SelDep" id="SelDep" onChange="changeDep(this.selectedIndex);">></select>
                 </td>
             </tr>
             <tr>
-                <td>
+                <td class="FormLabels">
                     <label asp-for="JsonUsers"></label>
                 </td>
-                <td>
+                <td class="FormValues">
                     <select class="form-control" name="SelUsers" id="SelUsers"></select>
                 </td>
             </tr>
             <tr>
-                <td>
+                <td class="FormLabels">
                     <label asp-for="Body"></label>
                 </td>
-                <td>
+                <td class="FormValues">
                     <span asp-validation-for="Body" class="text-danger"></span>
                     <textarea asp-for="Body" class="form-control" rows="10"></textarea>
                 </td>
             </tr>
             <tr>
-                <td>
+                <td class="FormLabels">
                     <span style="font-weight:bold">Начальные данные</span>
                 </td>
-                <td>
+                <td class="FormValues">
                     <span id="InitialData">Инициатор - @Model.CurrentUserName, отдел инициатора - @Model.CurrentUserDep</span>
                 </td>
             </tr>
+            <tr>
+                <td class="FormLabels">
+                    <span style="font-weight:bold">
+                        Прикрепленные файлы
+                    </span>
+                </td>
+                <td class="FormValues"><div style="font-size:16px;overflow:auto;max-height:100px;" id="FileUploadAttachmentPlace"></div></td>
+            </tr>
+            <tr style="align-self:center">
+                <td colspan="2">
+                    <a class="btn btn-default pull-right" href="#" onclick="NewTaskAddFiles();" style="margin:auto">Создать заявку</a>
+                </td>
+            </tr>
         </table>
-        <div style="font-size:20px;" id="FileUploadAttachmentPlace"></div>
+        
         <input type="hidden" id="TaskAction" name="TaskAction" />
         <input type="hidden" id="CurrentUserName" name="CurrentUserName" value="@Model.CurrentUserName" />
         <input type="hidden" id="Author" name="Author" value="@Model.CurrentUserName" />
         <input type="hidden" id="JsonAttachedFiles" name="JsonAttachedFiles" />
         <input type="hidden" id="RespName" name="RespName" />
-        <a class="btn btn-default pull-right" href="#" onclick="NewTaskAddFiles();" style="margin-right:5px">Создать заявку</a>
+        
     </span>
 </form>

@@ -16,3 +16,18 @@ C:\Users\kozlovas\Documents\Visual Studio 2017\CursorShops\CursorShops\bin\Debug
 C:\Users\kozlovas\Documents\Visual Studio 2017\CursorShops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.dll
 C:\Users\kozlovas\Documents\Visual Studio 2017\CursorShops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.pdb
 C:\Users\kozlovas\Documents\Visual Studio 2017\CursorShops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.csprojResolveAssemblyReference.cache
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\appsettings.json
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\bower.json
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\Properties\launchSettings.json
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.deps.json
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.runtimeconfig.json
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.runtimeconfig.dev.json
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.dll
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.pdb
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.csprojAssemblyReference.cache
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.Properties.Resources.resources
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.csproj.GenerateResource.cache
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.AssemblyInfoInputs.cache
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.AssemblyInfo.cs
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.dll
+C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.pdb

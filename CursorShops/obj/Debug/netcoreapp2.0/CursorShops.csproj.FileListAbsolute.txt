@@ -24,7 +24,6 @@ C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreap
 C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.runtimeconfig.dev.json
 C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.dll
 C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\bin\Debug\netcoreapp2.0\CursorShops.pdb
-C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.csprojAssemblyReference.cache
 C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.Properties.Resources.resources
 C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.csproj.GenerateResource.cache
 C:\Users\spadmin\source\Cursor_Shops\cursorshops\CursorShops\obj\Debug\netcoreapp2.0\CursorShops.AssemblyInfoInputs.cache
